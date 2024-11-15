@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة العمال</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>نظام إدارة العمال</h1>
+            <p>تسجيل الحضور والغياب والخصومات وإضافة العمال الجدد</p>
+        </div>
+    </header>
+
+    <section class="form-section">
+        <div class="container">
+            <h2>إضافة عامل جديد</h2>
+            <form id="addWorkerForm">
+                <div class="input-group">
+                    <label for="workerName">اسم العامل:</label>
+                    <input type="text" id="workerName" placeholder="أدخل اسم العامل" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="attendance">الحضور:</label>
+                    <select id="attendance">
+                        <option value="present">حاضر</option>
+                        <option value="absent">غائب</option>
+                        <option value="absent">مستئذن</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="deduction">الخصم:</label>
+                    <input type="number" id="deduction" placeholder="أدخل مبلغ الخصم">
+                    <select id="currency">
+                        <option value="ريال سعودي">ريال سعودي</option>
+                        <option value="ريال يمني">ريال يمني</option>
+                        <option value="دولار أمريكي">دولار أمريكي</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="notes">ملاحظات:</label>
+                    <textarea id="notes" placeholder="أدخل ملاحظات حول العامل"></textarea>
+                </div>
+
+                <button type="button" onclick="addWorker()">إضافة العامل</button>
+            </form>
+
+            <h2>البحث عن عامل</h2>
+            <input type="text" id="searchInput" placeholder="ابحث عن عامل..." onkeyup="searchWorkers()">
+
+            <h2>سجل العمال</h2>
+            <table id="workersTable">
+                <thead>
+                    <tr>
+                        <th>اسم العامل</th>
+                        <th>الحضور</th>
+                        <th>الخصم</th>
+                        <th>ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+            <h2>الإحصائيات</h2>
+            <div id="statistics">
+                <p id="totalWorkers">إجمالي العمال: 0</p>
+                <p id="totalPresent">إجمالي الحضور: 0</p>
+                <p id="totalAbsent">إجمالي الغياب: 0</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 نظام إدارة العمال - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <script>
+        let totalWorkers = 0;
+        let totalPresent = 0;
+        let totalAbsent = 0;
+        let totalDeduction = 0;
+
+        function addWorker() {
+            const workerName = document.getElementById('workerName').value;
+            const attendance = document.getElementById('attendance').value;
+            const deduction = parseFloat(document.getElementById('deduction').value) || 0;
+            const currency = document.getElementById('currency').value;
+            const notes = document.getElementById('notes').value;
+
+            if (workerName) {
+                const table = document.getElementById('workersTable').getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+
+                const nameCell = newRow.insertCell(0);
+                const attendanceCell = newRow.insertCell(1);
+                const deductionCell = newRow.insertCell(2);
+                const notesCell = newRow.insertCell(3);
+
+                nameCell.innerHTML = workerName;
+                attendanceCell.innerHTML = attendance === 'present' ? 'حاضر' : 'غائب';
+                deductionCell.innerHTML = deduction > 0 ? deduction + ' ' + currency : 'لا يوجد خصم';
+                notesCell.innerHTML = notes || 'لا توجد ملاحظات';
+
+                // تغيير لون نص الحضور أو الغياب
+                if (attendance === 'absent') {
+                    attendanceCell.style.color = 'red'; // إذا كان غائبًا
+                    totalAbsent++;
+                } else {
+                    totalPresent++;
+                }
+
+                if (deduction > 0) {
+                    deductionCell.style.color = 'red'; // إذا كان عليه خصم
+                }
+
+                totalWorkers++;
+                totalDeduction += deduction;
+
+                // إعادة تعيين النموذج
+                document.getElementById('addWorkerForm').reset();
+
+                // تحديث الإحصائيات
+                updateStatistics();
+            } else {
+                alert('يرجى إدخال اسم العامل.');
+            }
+        }
+
+        function updateStatistics() {
+            document.getElementById('totalWorkers').innerText = `إجمالي العمال: ${totalWorkers}`;
+            document.getElementById('totalPresent').innerText = `إجمالي الحضور: ${totalPresent}`;
+            document.getElementById('totalAbsent').innerText = `إجمالي الغياب: ${totalAbsent}`;
+        }
+
+        function searchWorkers() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('workersTable').getElementsByTagName('tbody')[0];
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const nameCell = rows[i].cells[0].innerText.toLowerCase();
+                rows[i].style.display = nameCell.includes(input) ? '' : 'none';
+            }
+        }
+    </script>
+</body>
+</html>
